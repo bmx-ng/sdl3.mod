@@ -160,10 +160,21 @@ See [resource ownership](docs/ownership-and-callbacks.md) for more details.
 
 ## Input and controllers
 
-The SDL3 system driver translates SDL events into BlitzMax events. With
-`BRL.PolledInput`, use `KeyDown`, `KeyHit`, `MouseX`, `MouseY` and `AppTerminate`
-as usual. Keep the event loop running; `PollSystem()` and `WaitSystem()` process
-SDL events. Avoid consuming SDL's event queue independently of the system driver.
+The SDL3 system driver translates SDL events into BlitzMax events. `Graphics()`
+(including Max2D and `SDLGraphics()`) enables `BRL.PolledInput`, so `KeyDown`,
+`KeyHit`, `MouseX`, `MouseY` and `AppTerminate` work as usual.
+
+Creating a raw `TSDLWindow` does not enable polled input. Use `BRL.EventQueue`
+and `PollEvent()` as in [hello_renderer.bmx](examples/hello_renderer.bmx), handling
+`EVENT_KEYDOWN`, `EVENT_WINDOWCLOSE` and `EVENT_APPTERMINATE` explicitly.
+`EVENT_WINDOWCLOSE` identifies the window by its ID in `EventData()`; it is a
+request for your application to close that window. If you choose to use polled
+input with raw windows, call `EnablePolledInput()` and still handle per-window
+close requests.
+
+Keep the event loop running. `PollEvent()` pumps the system when its queue is
+empty; `PollSystem()` and `WaitSystem()` also process SDL events. Avoid consuming
+SDL's native event queue independently of the system driver.
 
 - **Text entry:** use committed text events rather than translating key presses
   yourself. Raw windows must call `StartTextInput()`; graphics-managed windows
