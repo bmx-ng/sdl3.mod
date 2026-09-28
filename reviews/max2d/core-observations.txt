@@ -1,0 +1,4 @@
+shaped glyph image reused between calls=0
+shaped glyph image cache populated=0
+TextWidth unshaped=20 shaped advance=14.0
+two characters forming one glyph failed: Attempt to index array element beyond array length

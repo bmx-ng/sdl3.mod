@@ -1,0 +1,9 @@
+.DS_Store
+.bmx/
+/*.mod/*.debug.*
+/*.mod/*.release.*
+/*.mod/.generics/
+
+/sdl3.mod/.linux/
+
+*.module-config

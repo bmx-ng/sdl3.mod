@@ -1,0 +1,28 @@
+# Linux video backend selection. Existing SDK/application options override environment values.
+# sdl3.linux.video / SDL3_LINUX_VIDEO: both (default), x11, wayland.
+# sdl3.linux.kmsdrm / SDL3_LINUX_KMSDRM: 1 (default), 0.
+@define sdl3configure
+	if bmk.Platform() ~= "linux" then return end
+	local video = globals.Get("sdl3.linux.video")
+	if video == "" then video = os.getenv("SDL3_LINUX_VIDEO") or "both" end
+	local kms = globals.Get("sdl3.linux.kmsdrm")
+	if kms == "" then kms = os.getenv("SDL3_LINUX_KMSDRM") or "1" end
+	if video ~= "both" and video ~= "x11" and video ~= "wayland" then
+		error("sdl3.linux.video must be both, x11 or wayland")
+	end
+	if kms ~= "0" and kms ~= "1" then error("sdl3.linux.kmsdrm must be 0 or 1") end
+	globals.SetOption("cc_opts", "sdl3.configured", "-DBMXSDL3_CONFIGURED=1")
+	if video ~= "wayland" then
+		globals.AddC("user_defs", "sdl3_x11")
+		globals.SetOption("cc_opts", "sdl3.x11", "-DBMXSDL3_X11=1")
+	end
+	if video ~= "x11" then
+		globals.AddC("user_defs", "sdl3_wayland")
+		globals.SetOption("cc_opts", "sdl3.wayland", "-DBMXSDL3_WAYLAND=1")
+	end
+	if kms == "1" then
+		globals.AddC("user_defs", "sdl3_kmsdrm")
+		globals.SetOption("cc_opts", "sdl3.kmsdrm", "-DBMXSDL3_KMSDRM=1")
+	end
+@end
+sdl3configure

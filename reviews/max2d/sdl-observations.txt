@@ -1,0 +1,14 @@
+renderer=SDL.software (SDLRender)
+clear alpha requested=1.0 stored byte=1
+line width requested=7 rendered rows=1
+DrawPixmap red with green drawing color RGB=00000000
+texture scale modes unfiltered=0 filtered=0
+MASKBLEND alpha64 red over black RGB=003F0000
+write-lock recreates image frame=1
+half-alpha red stored in target ARGB=7F7F0000
+render target read-lock ARGB=00000000
+target composited over black RGB=003F0000
+opaque clear on render target alpha=1
+reselect same graphics failed: Attempt to access field or method of Null object
+SDL error: Surface already associated with window
+review probe complete
