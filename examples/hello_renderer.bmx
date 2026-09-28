@@ -1,7 +1,8 @@
 SuperStrict
 
 Framework SDL3.SDL3Render
-Import BRL.PolledInput
+Import BRL.EventQueue
+Import BRL.KeyCodes
 
 Local window:TSDLWindow = TSDLWindow.Create("Hello SDL3 - Escape to quit", 800, 450, ..
 	SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY)
@@ -24,8 +25,20 @@ End If
 Local vsync:Int = renderer.SetVSync(1)
 Local box:SSDLFRect = New SSDLFRect(40, 40, 160, 100)
 
-While Not KeyDown(KEY_ESCAPE) And Not AppTerminate()
-	PollSystem()
+Local running:Int = True
+While running
+	' Raw SDL windows use events directly; Graphics() normally enables polled input.
+	While PollEvent()
+		Select EventID()
+			Case EVENT_APPTERMINATE
+				running = False
+			Case EVENT_WINDOWCLOSE
+				If UInt(EventData()) = window.GetID() Then running = False
+			Case EVENT_KEYDOWN
+				If EventData() = KEY_ESCAPE Then running = False
+		End Select
+	Wend
+	If Not running Then Exit
 
 	renderer.SetDrawColor(24, 28, 38)
 	renderer.Clear()
