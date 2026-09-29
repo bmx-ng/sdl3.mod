@@ -16,6 +16,11 @@ Local window:TSDLWindow = driver.GetSDLWindow()
 Local renderer:TSDLRenderer = driver.GetSDLRenderer()
 Check window
 Check renderer
+Check (window.GetFlags() & SDL_WINDOW_HIGH_PIXEL_DENSITY) <> 0, "Graphics windows must request native pixel density"
+Local pixelWidth:Int
+Local pixelHeight:Int
+Check window.GetSizeInPixels(pixelWidth, pixelHeight)
+Check pixelWidth >= GraphicsWidth() And pixelHeight >= GraphicsHeight(), "Native drawable must retain the logical window extent"
 Check driver.GetSDLGLContext() = Null
 Check renderer.SetDrawColor(255, 0, 0) = 1
 Check renderer.Clear() = 1
