@@ -151,7 +151,8 @@ Type TSDLGraphicsDriver Extends TGraphicsDriver
 			If flags & GRAPHICS_STENCILBUFFER Then TSDLGLContext.SetAttribute(SDL_GL_STENCIL_SIZE, 1)
 		End If
 
-		Local windowFlags:ULong=SDL_WINDOW_HIDDEN
+		' Keep the requested logical size while exposing the display's native pixels.
+		Local windowFlags:ULong=SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY
 		If flags & GRAPHICS_BORDERLESS Then windowFlags :| SDL_WINDOW_BORDERLESS
 		If useGL Then windowFlags :| SDL_WINDOW_OPENGL
 		Local window:TSDLWindow = TSDLWindow.Create(AppTitle, width, height, windowFlags)
