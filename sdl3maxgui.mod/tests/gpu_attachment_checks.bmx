@@ -3,12 +3,28 @@ Import Max2D.SDL3GPUMax2D
 Import SDL3.SDL3Timer
 Import BRL.EventQueue
 Import BRL.PNGLoader
+?macos
 Import "gpu_glue.m"
+?win32
+Import "gpu_glue.c"
+?
 
 Extern
 	Function test_gpu_output:Int(device:Byte Ptr,window:Byte Ptr,width:Int Var,height:Int Var)
 	Function test_gpu_layers:Int(view:Byte Ptr)
 End Extern
+
+Function CanvasHandle:Byte Ptr(canvas:TGadget)
+?macos
+	Return QueryGadget(canvas,QUERY_NSVIEW_CLIENT)
+?win32
+	Return QueryGadget(canvas,QUERY_HWND)
+?
+End Function
+
+?win32
+Include "host_win32.bmx"
+?
 
 Function Check(ok:Int,message:String)
 	If Not ok Then Throw message
@@ -24,14 +40,24 @@ Local second:TGadget=CreateCanvas(350,50,130,150,window)
 Local secondGraphics:TGraphics=CanvasGraphics(second)
 Check(secondGraphics<>Null,"Second canvas attachment failed")
 Check(graphics<>Null,"AttachGraphics failed: "+SDL_GetError())
+?win32
+CheckHostInput(canvas,field)
+?
 For Local cycle:Int=0 Until 3
 	If cycle Then
 		CloseGraphics(graphics)
-		Check(test_gpu_layers(QueryGadget(canvas,QUERY_NSVIEW_CLIENT))=0,"GPU view leaked after detach")
-		graphics=AttachGraphics(QueryGadget(canvas,QUERY_NSVIEW_CLIENT),0)
+?win32
+		Check(test_host_detached(QueryGadget(canvas,QUERY_HWND)),"Canvas was destroyed or hook leaked after detach")
+?
+?macos
+		Check(test_gpu_layers(CanvasHandle(canvas))=0,"GPU view leaked after detach")
+?
+		graphics=AttachGraphics(CanvasHandle(canvas),0)
 		Check(graphics<>Null,"Reattachment failed")
 	End If
-	Check(test_gpu_layers(QueryGadget(canvas,QUERY_NSVIEW_CLIENT))=1,"Canvas must own one Metal view")
+?macos
+	Check(test_gpu_layers(CanvasHandle(canvas))=1,"Canvas must own one Metal view")
+?
 	SetGadgetShape(canvas,10,50,320-cycle*40,240-cycle*30)
 	PollSystem()
 	SetGraphics(graphics)
@@ -53,7 +79,9 @@ For Local cycle:Int=0 Until 3
 	Check(pixels<>Null,"Canvas readback failed")
 	Check(pixels.width=w And pixels.height=h,"Canvas drawable dimensions differ from native dimensions")
 	Check((ReadPixel(pixels,w-2,h-2)&$FFFFFF)=$F0641E,"Drawing did not reach the resized canvas edge")
+?macos
 	If cycle=0 Then SavePixmapPNG(pixels,"/tmp/sdl3-attached-gpu-canvas.png")
+?
 	Local target:TRenderImage=CreateRenderImage(32,32,0)
 	SetRenderImage(target)
 	SetClsColor(10,220,90)
@@ -84,6 +112,11 @@ While ticks<3
 Wend
 StopTimer(timer)
 CloseGraphics(graphics)
-Check(test_gpu_layers(QueryGadget(canvas,QUERY_NSVIEW_CLIENT))=0,"GPU view leaked on shutdown")
+?macos
+Check(test_gpu_layers(CanvasHandle(canvas))=0,"GPU view leaked on shutdown")
+?
+?win32
+Check(test_host_detached(QueryGadget(canvas,QUERY_HWND)),"Canvas was destroyed or hook leaked on shutdown")
+?
 FreeGadget(window)
 Print "SDL3 GPU MaxGUI attachment, resize, readback, reattachment and timer wake tests passed"

@@ -1,7 +1,7 @@
 SuperStrict
 
 Rem
-bbdoc: Hosts SDL3 rendering in macOS MaxGUI canvases.
+bbdoc: Hosts SDL3 rendering in macOS and Windows MaxGUI canvases.
 about: Import alongside Max2D.SDL3RenderMax2D or Max2D.SDL3GPUMax2D. MaxGUI owns input, windows and the event loop.
 SDL service events are drained after native polling, with wakeups for SDL timer and lifecycle events.
 Close attached graphics before freeing its gadget. Standalone SDL windows and ImGui input
@@ -9,15 +9,19 @@ inside attached canvases are not supported by this initial bridge.
 End Rem
 Module SDL3.SDL3MaxGUI
 
-ModuleInfo "Version: 0.02"
+ModuleInfo "Version: 0.03"
 ModuleInfo "License: zlib/libpng"
 ModuleInfo "CC_OPTS: -I%PWD%/../sdl3.mod/SDL3/include"
 
-?macos
+?macos Or win32
 Import BRL.SystemDefault
 Import MaxGUI.Drivers
 Import SDL3.SDL3Graphics
+?macos
 Import "glue.m"
+?win32
+Import "glue_win32.c"
+?macos Or win32
 
 Private
 Extern

@@ -16,7 +16,7 @@ install a separate SDL3 library.
 - [Use SDL's renderer directly](#use-sdls-renderer-directly)
 - [Input and controllers](#input-and-controllers)
 - [Sound and music](#sound-and-music)
-- [Draw inside a MaxGUI canvas (macOS)](docs/maxgui.md)
+- [Draw inside a MaxGUI canvas (macOS and Windows)](docs/maxgui.md)
 - [Module guide](#module-guide)
 - [Linux dependencies and configuration](#linux-dependencies-and-configuration)
 
