@@ -1,0 +1,2 @@
+# The native fixture queries the actual renderer drawable size.
+setccopt sdl3_gui_tests -I%BUILDPATH%/../../sdl3.mod/SDL3/include

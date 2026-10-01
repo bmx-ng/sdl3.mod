@@ -189,7 +189,7 @@ Function _JoystickEvent(kind:Int, id:UInt, control:Int, value:Int)
 		End Select
 		If eventID Then EmitEvent(CreateEvent(eventID, Null, Int(id), control, value))
 	Catch error:Object
-		TSDLSystemDriver(SystemDriver())._DeferCallbackError(error)
+		SDLSystemDriver()._DeferCallbackError(error)
 	End Try
 End Function
 Public

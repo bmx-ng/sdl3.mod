@@ -23,7 +23,7 @@ static Uint32 SDLCALL timerCallback(void *userdata, SDL_TimerID id, Uint32 inter
     SDL_Event event = {0};
     event.type = timerEventType;
     event.user.code = (int)id;
-    SDL_PushEvent(&event);
+    if (SDL_PushEvent(&event)) bmx_SDL3_NotifyEventQueued();
     return interval;
 }
 

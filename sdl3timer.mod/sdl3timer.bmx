@@ -23,7 +23,7 @@ Function _TimerFired(id:UInt)
 		Try
 			timer.Fire()
 		Catch error:Object
-			TSDLSystemDriver(SystemDriver())._DeferCallbackError(error)
+			SDLSystemDriver()._DeferCallbackError(error)
 		End Try
 	End If
 End Function

@@ -17,4 +17,9 @@ void bmx_SDL3_RemoveEventObserver(BMX_SDL3_EventObserver observer);
 /* Main-thread application hook; copies the UTF-8 path until event delivery. */
 int bmx_SDL3_QueueOpenFile(const char *path);
 
+/* Optional host wakeup. Notify only after SDL_PushEvent has queued an event.
+ * The callback must be native/thread-safe: timer producers can run off-thread. */
+void bmx_SDL3_SetHostWakeup(void (*callback)(void));
+void bmx_SDL3_NotifyEventQueued(void);
+
 #endif

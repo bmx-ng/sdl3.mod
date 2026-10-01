@@ -509,6 +509,9 @@ static int mouseEvent(Uint32 type) {
         type == SDL_EVENT_FINGER_DOWN || type == SDL_EVENT_FINGER_UP || type == SDL_EVENT_FINGER_MOTION ||
 		type == SDL_EVENT_FINGER_CANCELED;
 }
+static int hostedEvents;
+void bmx_SDL3_SetHostedEvents(int enabled) { hostedEvents = enabled; }
+
 static void dispatchEvent(SDL_Event *event) {
     if (event->type == lifecycleWakeEvent && lifecycleWakeEvent) {
         sdl3_sdl3system_TSDLSystemDriver__eventFilter(lifecycleDriver, event->user.code);
@@ -549,7 +552,7 @@ static void dispatchEvent(SDL_Event *event) {
 			if (item->device == event->tfinger.touchID && item->finger == event->tfinger.fingerID) captured = 0;
 		}
 	}
-	if (!captured) emitEvent(event);
+	if (!captured && !hostedEvents) emitEvent(event);
 }
 static void handleEvent(SDL_Event *event) {
 	PendingOpenFile *owned = event->type == SDL_EVENT_DROP_FILE ? takeOpenFile(event->drop.data) : NULL;
@@ -579,7 +582,7 @@ static bool SDLCALL lifecycleWatch(void *userdata, SDL_Event *event) {
             SDL_Event wake = {0};
             wake.type = lifecycleWakeEvent;
             wake.user.code = event->type;
-            SDL_PushEvent(&wake);
+            if (SDL_PushEvent(&wake)) bmx_SDL3_NotifyEventQueued();
         }
         return true;
     default: return true;
@@ -655,3 +658,20 @@ static int messageBox(BBString *text, BBString *title, int serious, int proceed)
 }
 int bmx_SDL3_ShowMessageBoxConfirm(BBString *text, BBString *title, int serious) { return messageBox(text, title, serious, 0); }
 int bmx_SDL3_ShowMessageBoxProceed(BBString *text, BBString *title, int serious) { return messageBox(text, title, serious, 1); }
+
+/* Drain queued SDL service events without taking over the native GUI pump. */
+void bmx_SDL3_DrainHostedEvents(void) {
+	SDL_Event event;
+	while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_EVENT_FIRST, SDL_EVENT_LAST) > 0) {
+		handleEvent(&event);
+	}
+}
+
+static void (*hostWakeup)(void);
+void bmx_SDL3_SetHostWakeup(void (*callback)(void)) {
+	SDL_SetAtomicPointer((void **)&hostWakeup, (void *)callback);
+}
+void bmx_SDL3_NotifyEventQueued(void) {
+	void (*callback)(void) = (void (*)(void))SDL_GetAtomicPointer((void **)&hostWakeup);
+	if (callback) callback();
+}
