@@ -2,12 +2,12 @@ SuperStrict
 
 Framework MaxGUI.Drivers
 Import SDL3.SDL3MaxGUI
-Import Max2D.SDL3RenderMax2D
+Import Max2D.SDL3GPUMax2D
 Import BRL.TimerDefault
 Import BRL.EventQueue
 Import Pub.StdC
 
-Local window:TGadget=CreateWindow("SDL3 inside MaxGUI",80,80,800,540,Null,WINDOW_TITLEBAR|WINDOW_RESIZABLE|WINDOW_CLIENTCOORDS)
+Local window:TGadget=CreateWindow("SDL3 GPU inside MaxGUI",80,80,800,540,Null,WINDOW_TITLEBAR|WINDOW_RESIZABLE|WINDOW_CLIENTCOORDS)
 SetMinWindowSize(window,640,320)
 Local field:TGadget=CreateTextField(12,12,420,28,window)
 SetGadgetText(field,"Native controls and SDL3 drawing share this window")
@@ -47,7 +47,7 @@ While True
 			SetColor(60+alternate*150,170,230)
 			DrawRect(30,45,GraphicsWidth()-60,GraphicsHeight()-100)
 			SetColor(255,255,255)
-			DrawText("SDL3 renderer / Max2D",45,65)
+			DrawText("Native SDL3 GPU / Max2D",45,65)
 			DrawText("Native canvas: "+GraphicsWidth()+" x "+GraphicsHeight(),45,90)
 			DrawText("Timer ticks: "+ticks,45,115)
 			DrawText("Canvas clicks: "+clicks+" at "+mouseX+", "+mouseY,45,140)

@@ -91,9 +91,11 @@ void bmx_SDL3_GUISize(SDL_Window *window, int *width, int *height, int pixels) {
 	NSRect bounds = [view bounds];
 	/* SDL's Metal view normally updates its drawable on SDL window-size events.
 	 * A native child canvas can resize without changing the containing window. */
-	SDL_Renderer *renderer = SDL_GetRenderer(window);
-	if (renderer) {
-		CAMetalLayer *layer = (CAMetalLayer *)SDL_GetRenderMetalLayer(renderer);
+	/* Both SDL renderers and SDL GPU devices place their Metal view here.
+	 * Inspect only this canvas's children; never another canvas's layers. */
+	for (NSView *child in [view subviews]) {
+		if (![[child layer] isKindOfClass:[CAMetalLayer class]]) continue;
+		CAMetalLayer *layer = (CAMetalLayer *)[child layer];
 		NSRect backing = [view convertRectToBacking:bounds];
 		if (layer && bounds.size.width > 0 && bounds.size.height > 0) {
 			CGFloat scale = backing.size.width / bounds.size.width;
@@ -121,4 +123,31 @@ SDL_Renderer *bmx_SDL3_GUIRenderer(SDL_Window *window) {
 	[host addSubview:view];
 	[view setFrame:[host bounds]];
 	return renderer;
+}
+
+int bmx_SDL3_GUIClaimGPU(SDL_GPUDevice *device, SDL_Window *window) {
+	if (SDL_strcmp(SDL_GetGPUDeviceDriver(device), "metal") != 0) {
+		SDL_SetError("SDL3 MaxGUI: macOS GPU attachment requires the Metal driver");
+		return 0;
+	}
+	NSView *view = SDL_GetPointerProperty(SDL_GetWindowProperties(window), "bmx.maxgui.view", NULL);
+	NSView *host = [view superview];
+	NSWindow *nativeWindow = [host window];
+	if (!view || !nativeWindow) {
+		SDL_SetError("SDL3 MaxGUI: the canvas must belong to a live native window");
+		return 0;
+	}
+	NSView *content = [[nativeWindow contentView] retain];
+	/* Claiming the window creates the GPU's Metal view and swapchain. */
+	[nativeWindow setContentView:view];
+	int result = SDL_ClaimWindowForGPUDevice(device, window) ? 1 : 0;
+	[nativeWindow setContentView:content];
+	[content release];
+	[host addSubview:view];
+	[view setFrame:[host bounds]];
+	if (result) {
+		int width, height;
+		bmx_SDL3_GUISize(window, &width, &height, 1);
+	}
+	return result;
 }

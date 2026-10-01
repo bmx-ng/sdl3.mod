@@ -22,6 +22,15 @@ End Rem
 Global SDLAttachRenderer:TSDLRenderer(window:TSDLWindow)
 
 Rem
+bbdoc: Claims an attached native canvas for an SDL GPU device.
+param: Borrowed SDL_GPUDevice pointer.
+param: Borrowed SDL_Window wrapper pointer.
+returns: Nonzero on success; zero with SDL_GetError set on failure.
+about: Installed by the optional GUI bridge. Called on the main thread before GPU drawing.
+End Rem
+Global SDLAttachGPUClaim:Int(device:Byte Ptr,window:Byte Ptr)
+
+Rem
 bbdoc: Reports an attached canvas size in logical coordinates or pixels.
 End Rem
 Global SDLAttachedSize(window:Byte Ptr, width:Int Var, height:Int Var, pixels:Int)
@@ -165,17 +174,20 @@ Type TSDLGraphicsDriver Extends TGraphicsDriver
 
 	Method AttachGraphics:TSDLGraphics(widget:Byte Ptr, flags:Long) Override
 		If Not SDLAttachWindow Then Return Null
-		If flags & (SDL_GRAPHICS_GL|SDL_GRAPHICS_GPU) Then Throw "SDL3 Graphics: this attachment provider currently supports SDL rendering only"
+		If flags & SDL_GRAPHICS_GL Then Throw "SDL3 Graphics: OpenGL attachment is not supported by this provider"
+		If (flags & SDL_GRAPHICS_GPU) And Not SDLAttachGPUClaim Then Return Null
 		Local ptr:Byte Ptr=SDLAttachWindow(widget)
 		If Not ptr Then Return Null
 		Local context:TSDLGraphicsContext=New TSDLGraphicsContext
 		context.attached=True
 		context.window=New TSDLWindow
 		context.window.windowPtr=ptr
-		context.renderer=SDLAttachRenderer(context.window)
-		If Not context.renderer Then
-			context.window.Destroy()
-			Return Null
+		If Not (flags & SDL_GRAPHICS_GPU) Then
+			context.renderer=SDLAttachRenderer(context.window)
+			If Not context.renderer Then
+				context.window.Destroy()
+				Return Null
+			End If
 		End If
 		context.flags=flags
 		context.RefreshSize()

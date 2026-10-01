@@ -1,6 +1,6 @@
 # Drawing into a MaxGUI canvas
 
-On macOS, import `SDL3.SDL3MaxGUI` alongside `Max2D.SDL3RenderMax2D` to draw with SDL3 inside a native MaxGUI canvas:
+On macOS, import `SDL3.SDL3MaxGUI` alongside either SDL3 Max2D backend to draw inside a native MaxGUI canvas:
 
 ```blitzmax
 SuperStrict
@@ -12,9 +12,14 @@ Import BRL.TimerDefault
 Import BRL.EventQueue
 ```
 
-This requires BRL.System 1.31 and the corresponding SDL3 and Max2D attachment updates. Windows, Linux and the native SDL GPU Max2D backend are not supported by this bridge yet.
+This requires BRL.System 1.31 and the corresponding SDL3 and Max2D attachment updates. Windows and Linux attachment are not supported by this bridge yet.
 
 Build and run [the canvas example](../sdl3maxgui.mod/examples/canvas.bmx). It combines an editable native text field, a button, a timer and a resizable drawing surface. Click the canvas to check its mouse-event counter, type into the field, and resize the window to try the integration.
+
+For native SDL GPU drawing, replace `Import Max2D.SDL3RenderMax2D` with
+`Import Max2D.SDL3GPUMax2D`, or run [the GPU canvas example](../sdl3maxgui.mod/examples/canvas_gpu.bmx).
+The MaxGUI event loop and drawing calls remain the same. Render images, batching
+and the GPU backend's ordinary drawing features are available inside the canvas.
 
 ## Drawing and resizing
 
@@ -31,7 +36,7 @@ Use `RedrawGadget(canvas)` to request painting, and draw when you receive `EVENT
 
 `GraphicsWidth()` and `GraphicsHeight()` describe the canvas's client area in logical units, excluding its border. The backend uses the corresponding Retina pixel dimensions for rendering. Resize and position the **gadget**, not its graphics. Attached graphics do not support Max2D fullscreen operations: the containing window belongs to MaxGUI.
 
-Multiple canvases may use separate renderers. This initial macOS implementation selects SDL's Metal renderer for attached canvases.
+Multiple canvases own separate rendering contexts. The SDL renderer path selects SDL's Metal renderer. The native GPU path uses SDL's Metal GPU driver and rejects other GPU drivers for macOS attachment. It claims the canvas's drawing view, not the containing GUI window; Retina drawable sizing follows that view.
 
 ## Input and timers
 
@@ -51,4 +56,4 @@ Closing attached graphics releases the renderer and its drawing subview; it does
 
 The bridge is opt-in. Standalone SDL3 applications use the SDL system driver when no explicit host system driver exists. Ordinary MaxGUI applications continue using their native driver. Import order does not choose which system driver wins: an explicit native driver takes precedence over the SDL fallback.
 
-The macOS checks cover canvas resize and drawable dimensions, pixel readback, multiple canvases, repeated attachment, SDL timer wakeups and both import orders. Existing native MaxGUI/BRL.GLMax2D and standalone SDL3/ImGui tests are also exercised.
+The macOS checks cover both backends: canvas resize and drawable dimensions, pixel readback, multiple canvases, repeated attachment, SDL timer wakeups and both import orders. GPU checks also cover actual swapchain dimensions, render-to-texture drawing, VSync changes and release of native Metal views. Existing native MaxGUI/BRL.GLMax2D and standalone SDL3/ImGui tests are also exercised.
