@@ -1,0 +1,11 @@
+# The native fixture queries the actual renderer drawable size.
+setccopt sdl3_gui_tests -I%BUILDPATH%/../../sdl3.mod/SDL3/include
+
+@define configuregtkfixture
+	if bmk.Platform() ~= "linux" then return end
+	local pipe = assert(io.popen("pkg-config --cflags gtk+-3.0"))
+	local flags = pipe:read("*a")
+	assert(pipe:close(), "GTK3 development headers are required")
+	globals.SetOption("cc_opts", "sdl3.maxgui.tests.gtk", flags:gsub("%s+$", ""))
+@end
+configuregtkfixture

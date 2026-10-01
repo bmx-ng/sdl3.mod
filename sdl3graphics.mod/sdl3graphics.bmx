@@ -11,7 +11,35 @@ Private
 Global _currentContext:TSDLGraphicsContext
 Public
 
+Rem
+bbdoc: Native attachment provider installed by an optional GUI integration module.
+End Rem
+Global SDLAttachWindow:Byte Ptr(widget:Byte Ptr)
+
+Rem
+bbdoc: Creates the renderer for a GUI-owned drawing surface.
+End Rem
+Global SDLAttachRenderer:TSDLRenderer(window:TSDLWindow)
+
+Rem
+bbdoc: Claims an attached native canvas for an SDL GPU device.
+param: Borrowed SDL_GPUDevice pointer.
+param: Borrowed SDL_Window wrapper pointer.
+returns: Nonzero on success; zero with SDL_GetError set on failure.
+about: Installed by the optional GUI bridge. Called on the main thread before GPU drawing.
+End Rem
+Global SDLAttachGPUClaim:Int(device:Byte Ptr,window:Byte Ptr)
+
+Rem
+bbdoc: Reports an attached canvas size in logical coordinates or pixels.
+End Rem
+Global SDLAttachedSize(window:Byte Ptr, width:Int Var, height:Int Var, pixels:Int)
+
 Type TSDLGraphicsContext
+	Rem
+	bbdoc: True when a native GUI owns the drawing surface and its window.
+	End Rem
+	Field attached:Int
 	Field window:TSDLWindow
 	Field renderer:TSDLRenderer
 	Field glContext:TSDLGLContext
@@ -20,11 +48,16 @@ Type TSDLGraphicsContext
 	Field x:Int, y:Int
 	Field sync:Int = -2
 	Method WindowScale:Float()
+		If attached Then Return 1.0
 		Local d:Int,hz:Int
 		If bmx_SDL3_GraphicsWindowMode(window.windowPtr,d,hz)=1 Then Return 1.0
 		Return bmx_SDL3_GraphicsWindowScale(window.windowPtr)
 	End Method
 	Method RefreshSize()
+		If attached Then
+			SDLAttachedSize(window.windowPtr,width,height,False)
+			Return
+		End If
 		window.GetSize(width,height)
 		Local scale:Float=WindowScale()
 		width=Int(width/scale+0.5);height=Int(height/scale+0.5)
@@ -58,7 +91,7 @@ Type TSDLGraphics Extends TGraphics
 	End Method
 
 	Method WindowMode:Int()
-		If Not _context Then Return 0
+		If Not _context Or _context.attached Then Return 0
 		Return bmx_SDL3_GraphicsWindowMode(_context.window.windowPtr,_context.depth,_context.hertz)
 	End Method
 
@@ -75,6 +108,7 @@ Type TSDLGraphics Extends TGraphics
 	End Method
 
 	Method ChangeWindowMode(mode:Int,width:Int,height:Int,hertz:Int)
+		If _context.attached Then Throw "SDL3 Graphics: the GUI owns this canvas window"
 		Local ok:Int=bmx_SDL3_GraphicsSetWindowMode(_context.window.windowPtr,mode,width,height,hertz)
 		Local message:String
 		If Not ok Then message=SDL_GetError()
@@ -93,6 +127,7 @@ Type TSDLGraphics Extends TGraphics
 	End Method
 
 	Method Resize(width:Int, height:Int) Override
+		If _context And _context.attached Then Throw "SDL3 Graphics: resize the host gadget instead"
 		If Not _context Then Return
 		_context.RefreshSize()
 		If width=_context.width And height=_context.height Then Return
@@ -105,6 +140,7 @@ Type TSDLGraphics Extends TGraphics
 	End Method
 
 	Method Position(x:Int, y:Int) Override
+		If _context And _context.attached Then Throw "SDL3 Graphics: position the host gadget instead"
 		If Not _context Then Return
 		_context.x = x
 		_context.y = y
@@ -137,7 +173,27 @@ Type TSDLGraphicsDriver Extends TGraphicsDriver
 	End Method
 
 	Method AttachGraphics:TSDLGraphics(widget:Byte Ptr, flags:Long) Override
-		Return Null
+		If Not SDLAttachWindow Then Return Null
+		If flags & SDL_GRAPHICS_GL Then Throw "SDL3 Graphics: OpenGL attachment is not supported by this provider"
+		If (flags & SDL_GRAPHICS_GPU) And Not SDLAttachGPUClaim Then Return Null
+		Local ptr:Byte Ptr=SDLAttachWindow(widget)
+		If Not ptr Then Return Null
+		Local context:TSDLGraphicsContext=New TSDLGraphicsContext
+		context.attached=True
+		context.window=New TSDLWindow
+		context.window.windowPtr=ptr
+		If Not (flags & SDL_GRAPHICS_GPU) Then
+			context.renderer=SDLAttachRenderer(context.window)
+			If Not context.renderer Then
+				context.window.Destroy()
+				Return Null
+			End If
+		End If
+		context.flags=flags
+		context.RefreshSize()
+		Local graphics:TSDLGraphics=New TSDLGraphics
+		graphics._context=context
+		Return graphics
 	End Method
 
 	Method CreateGraphics:TSDLGraphics(width:Int, height:Int, depth:Int, hertz:Int, flags:Long, x:Int, y:Int) Override

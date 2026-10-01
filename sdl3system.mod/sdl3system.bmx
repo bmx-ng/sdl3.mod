@@ -61,9 +61,6 @@ Type TSDLSystemDriver Extends TSystemDriver
 	Method New()
 		If Not SDL_Init(SDL_INIT_EVENTS) Then Throw "SDL3 events init failed: " + SDL_GetError()
 		If Not bmx_SDL3_SetLifecycleWatch(Self) Then Throw "SDL3 lifecycle watch failed: " + SDL_GetError()
-?macos
-		bmx_SDL3_RegisterCallbacks()
-?
 		OnEnd(bmx_SDL3_SystemShutdown)
 	End Method
 
@@ -197,12 +194,29 @@ bbdoc: Registers a callback for SDL3 application lifecycle events.
 about: SDL3 requires these events to be observed with an event watch. Callbacks from the BlitzMax main thread run immediately; callbacks from other threads are delivered during the next PollSystem or WaitSystem. Exceptions are caught at the native callback boundary; the first pending exception is rethrown by PollSystem or WaitSystem after native dispatch returns. Callbacks must not call PollSystem or WaitSystem recursively.
 End Rem
 Function SetLifecycleCallback(callback(data:Object, event:Int), data:Object = Null)
-	Local driver:TSDLSystemDriver = TSDLSystemDriver(SystemDriver())
+	Local driver:TSDLSystemDriver = SDLSystemDriver()
 	driver._lifecycleCallback = callback
 	driver._eventFilterUserData = data
 End Function
 
-InitSystemDriver(New TSDLSystemDriver)
+Rem
+bbdoc: Returns the SDL event service, including when a native GUI hosts SDL rendering.
+End Rem
+Function SDLSystemDriver:TSDLSystemDriver()
+	Global driver:TSDLSystemDriver = New TSDLSystemDriver
+	Return driver
+End Function
+
+Private
+Function _StandaloneDriver:TSystemDriver()
+?macos
+	bmx_SDL3_RegisterCallbacks()
+?
+	Return SDLSystemDriver()
+End Function
+Public
+SDLSystemDriver()
+RegisterFallbackSystemDriver(_StandaloneDriver)
 
 Private
 Extern
