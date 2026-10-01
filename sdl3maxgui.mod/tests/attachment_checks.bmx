@@ -11,6 +11,8 @@ End Extern
 
 ?win32
 Include "host_win32.bmx"
+?linux
+Include "host_linux.bmx"
 ?
 
 Function Check(ok:Int,message:String)
@@ -27,7 +29,7 @@ Local second:TGadget=CreateCanvas(350,50,130,150,window)
 Local secondGraphics:TGraphics=CanvasGraphics(second)
 Check(secondGraphics<>Null,"Second canvas attachment failed")
 Check(graphics<>Null,"AttachGraphics failed: "+SDL_GetError())
-?win32
+?win32 Or linux
 CheckHostInput(canvas,field)
 ?
 For Local cycle:Int=0 Until 3
@@ -35,11 +37,15 @@ For Local cycle:Int=0 Until 3
 		CloseGraphics(graphics)
 ?win32
 		Check(test_host_detached(QueryGadget(canvas,QUERY_HWND)),"Canvas was destroyed or hook leaked after detach")
+?linux
+		Check(test_host_detached(TGTKGadget(canvas).handle),"GTK canvas destroyed or attachment leaked after detach")
 ?
 ?macos
 		graphics=AttachGraphics(QueryGadget(canvas,QUERY_NSVIEW_CLIENT),0)
 ?win32
 		graphics=AttachGraphics(QueryGadget(canvas,QUERY_HWND),0)
+?linux
+		graphics=AttachGraphics(gdk_x11_window_get_xid(gtk_widget_get_window(TGTKGadget(canvas).handle)),0)
 ?
 		Check(graphics<>Null,"Reattachment failed")
 	End If
@@ -86,6 +92,8 @@ StopTimer(timer)
 CloseGraphics(graphics)
 ?win32
 Check(test_host_detached(QueryGadget(canvas,QUERY_HWND)),"Canvas was destroyed or hook leaked on shutdown")
+?linux
+Check(test_host_detached(TGTKGadget(canvas).handle),"GTK canvas destroyed or attachment leaked on shutdown")
 ?
 FreeGadget(window)
 Print "SDL3 MaxGUI attachment, resize, readback, reattachment and timer wake tests passed"

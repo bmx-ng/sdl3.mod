@@ -1,0 +1,11 @@
+# GTK headers are needed only by the Linux host bridge.
+@define sdl3maxguiconfigure
+	if bmk.Platform() ~= "linux" then return end
+	local pipe = io.popen("pkg-config --cflags gtk+-3.0")
+	if not pipe then error("SDL3.SDL3MaxGUI requires pkg-config and GTK3 development headers") end
+	local flags = pipe:read("*a")
+	local ok = pipe:close()
+	if not ok or flags == "" then error("SDL3.SDL3MaxGUI requires GTK3 development headers (libgtk-3-dev)") end
+	globals.SetOption("cc_opts", "sdl3.maxgui.gtk", flags:gsub("%s+$", ""))
+@end
+sdl3maxguiconfigure
