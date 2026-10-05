@@ -273,8 +273,20 @@ Android uses SDL3's current Java activity and Android-specific native sources.
 It requires the modern Android support in bmk2: JDK 17, Android SDK 35, NDK r28c
 or newer, and the Gradle template installed at
 `BlitzMax/resources/android/android-project`. Keep the SDK, NDK and JDK outside
-the BlitzMax tree and point bmk to them with `JAVA_HOME`, `ANDROID_HOME` (or
-`ANDROID_SDK_ROOT`), and optionally `ANDROID_NDK_VERSION`.
+the BlitzMax tree. Configure their locations in the SDK's `bin/custom.bmk`:
+
+```text
+addoption android.java.home "/path/to/jdk-17"
+addoption android.sdk "/path/to/Android/sdk"
+addoption android.ndk.version "28.2.13676358"
+addoption android.platform "21"
+addoption android.sdk.target "35"
+```
+
+The last three settings are optional. Environment equivalents are `JAVA_HOME`,
+`ANDROID_HOME` (or `ANDROID_SDK_ROOT`), `ANDROID_NDK_VERSION`,
+`ANDROID_PLATFORM`, and `ANDROID_SDK_TARGET`; these are convenient for CI and
+temporary overrides, while `custom.bmk` is usually easier for local development.
 
 Build the renderer example for 64-bit ARM with:
 
