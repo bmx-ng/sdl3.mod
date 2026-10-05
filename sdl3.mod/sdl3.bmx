@@ -8,15 +8,15 @@ ModuleInfo "License: zlib/libpng"
 ' SDL's bool is converted to Int by glue.c at the BlitzMax boundary.
 ModuleInfo "CC_OPTS: -I%PWD%/SDL3/include -I%PWD%/SDL3/include/build_config -DSDL_dynapi_h_ -DSDL_DYNAMIC_API=0"
 
-?linux
+?linux And Not android
 ModuleInfo "CC_OPTS: -include %PWD%/include/linux/SDL_build_config.h -DSDL_STATIC_LIB -DUSING_GENERATED_CONFIG_H -D_REENTRANT -fno-strict-aliasing"
 ModuleInfo "CC_OPTS: -I%PWD%/SDL3/src -I%PWD%/wayland-generated-protocols -idirafter %PWD%/SDL3/src/video/khronos"
 ModuleInfo "CC_OPTS: `pkg-config --cflags dbus-1 egl gl alsa libpulse libudev`"
-?linux And sdl3_x11
+?linux And Not android And sdl3_x11
 ModuleInfo "CC_OPTS: `pkg-config --cflags fribidi libthai x11 xext xcursor xi xfixes xrandr xscrnsaver xtst`"
-?linux And sdl3_wayland
+?linux And Not android And sdl3_wayland
 ModuleInfo "CC_OPTS: `pkg-config --cflags libdecor-0 xkbcommon wayland-client wayland-cursor wayland-egl`"
-?linux And sdl3_kmsdrm
+?linux And Not android And sdl3_kmsdrm
 ModuleInfo "CC_OPTS: `pkg-config --cflags libdrm gbm`"
 ?macos
 ModuleInfo "CC_OPTS: -fobjc-arc"
@@ -33,6 +33,9 @@ Import "-framework IOKit"
 Import "-framework Metal"
 Import "-framework QuartzCore"
 Import "-framework UniformTypeIdentifiers"
+?android
+ModuleInfo "CC_OPTS: -I%PWD%/SDL3/src -idirafter %PWD%/SDL3/src/video/khronos -DGL_GLEXT_PROTOTYPES -fno-strict-aliasing"
+Import "-lOpenSLES"
 ?win32
 Import "-lkernel32"
 Import "-luser32"

@@ -267,6 +267,32 @@ The bindings do not yet expose every SDL3 subsystem. See the
 particular feature. For example, the new Max2D GPU backend uses SDL's GPU API,
 but this repository does not yet provide general-purpose BlitzMax GPU bindings.
 
+## Android
+
+Android uses SDL3's current Java activity and Android-specific native sources.
+It requires the modern Android support in bmk2: JDK 17, Android SDK 35, NDK r28c
+or newer, and the Gradle template installed at
+`BlitzMax/resources/android/android-project`. Keep the SDK, NDK and JDK outside
+the BlitzMax tree and point bmk to them with `JAVA_HOME`, `ANDROID_HOME` (or
+`ANDROID_SDK_ROOT`), and optionally `ANDROID_NDK_VERSION`.
+
+Build the renderer example for 64-bit ARM with:
+
+```sh
+bmk makeapp -l android -g arm64v8a -o build/hello_renderer \
+  mod/sdl3.mod/examples/hello_renderer.bmx
+adb install -r build/hello_renderer.apk
+```
+
+The application packages SDL3 and the BlitzMax runtime into one native library;
+no separate SDL or C++ runtime library is required in the APK. The default
+activity forwards Android lifecycle, touch, keyboard, controller, sensor and
+audio events to SDL. API 21 is the minimum supported Android version.
+
+The core, events, video, renderer, surface, input, controller, audio, thread and
+timer modules are available on Android. `SDL3.SDL3MaxGUI` remains a desktop
+integration and is not an Android UI toolkit.
+
 ## Linux dependencies and configuration
 
 The default build enables **X11, Wayland and KMS/DRM**. Install their development
