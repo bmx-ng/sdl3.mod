@@ -3,7 +3,7 @@
 /* Wayland compositors choose top-level window placement, including centering. */
 int bmx_SDL3_GraphicsInitialPosition(SDL_Window *window, int x, int y) {
     const char *driver = SDL_GetCurrentVideoDriver();
-    if (driver && SDL_strcmp(driver, "wayland") == 0) return 1;
+    if (driver && (SDL_strcmp(driver, "wayland") == 0 || SDL_strcmp(driver, "android") == 0)) return 1;
     return SDL_SetWindowPosition(window, x, y) ? 1 : 0;
 }
 
@@ -98,6 +98,8 @@ float bmx_SDL3_GraphicsWindowScale(SDL_Window *window) {
     return 1.0f;
 }
 int bmx_SDL3_GraphicsSetLogicalSize(SDL_Window *window, int width, int height) {
+    const char *driver = SDL_GetCurrentVideoDriver();
+    if (driver && SDL_strcmp(driver, "android") == 0) return 1;
     float scale = bmx_SDL3_GraphicsWindowScale(window);
     return SDL_SetWindowSize(window, (int)SDL_roundf(width * scale), (int)SDL_roundf(height * scale))
         && SDL_SyncWindow(window) ? 1 : 0;
