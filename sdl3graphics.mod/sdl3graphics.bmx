@@ -58,9 +58,14 @@ Type TSDLGraphicsContext
 			SDLAttachedSize(window.windowPtr,width,height,False)
 			Return
 		End If
+?android
+		' Android owns the full-screen surface; retain the requested logical size.
+		Return
+?Not android
 		window.GetSize(width,height)
 		Local scale:Float=WindowScale()
 		width=Int(width/scale+0.5);height=Int(height/scale+0.5)
+?
 	End Method
 End Type
 
@@ -86,13 +91,22 @@ Type TSDLGraphics Extends TGraphics
 	Method RefreshWindowSettings()
 		If Not _context Then Return
 		_context.RefreshSize()
+?android
+		_context.x=0;_context.y=0
+		_context.depth=0;_context.hertz=0
+?Not android
 		_context.window.GetPosition(_context.x,_context.y)
 		bmx_SDL3_GraphicsWindowMode(_context.window.windowPtr,_context.depth,_context.hertz)
+?
 	End Method
 
 	Method WindowMode:Int()
 		If Not _context Or _context.attached Then Return 0
+?android
+		Return 0
+?Not android
 		Return bmx_SDL3_GraphicsWindowMode(_context.window.windowPtr,_context.depth,_context.hertz)
+?
 	End Method
 
 	Method SetFullscreen(enabled:Int,width:Int=0,height:Int=0,hertz:Int=0)
@@ -240,10 +254,12 @@ Type TSDLGraphicsDriver Extends TGraphicsDriver
 			End If
 		End If
 
+?Not android
 		If Not window.StartTextInput() Then
 			window.Destroy()
 			Return Null
 		End If
+?
 
 		Local renderer:TSDLRenderer
 		Local glContext:TSDLGLContext
@@ -260,8 +276,12 @@ Type TSDLGraphicsDriver Extends TGraphicsDriver
 				Return Null
 			End If
 		End If
+?android
+		x=0;y=0
+?Not android
 		window.GetSize(width, height)
 		window.GetPosition(x, y)
+?
 
 		Local context:TSDLGraphicsContext = New TSDLGraphicsContext
 		context.window = window
