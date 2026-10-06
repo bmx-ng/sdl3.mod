@@ -27,6 +27,10 @@ int bmx_SDL3_GetWindowSizeInPixels(SDL_Window *window, int *width, int *height) 
 	}
 	return result;
 }
+int bmx_SDL3_GetWindowSafeArea(SDL_Window *window, SDL_Rect *rect) {
+	SDL_zero(*rect);
+	return SDL_GetWindowSafeArea(window, rect) ? 1 : 0;
+}
 int bmx_SDL3_GetWindowPosition(SDL_Window *window, int *x, int *y) {
 	int result = SDL_GetWindowPosition(window, x, y) ? 1 : 0;
 	if (!result) {
