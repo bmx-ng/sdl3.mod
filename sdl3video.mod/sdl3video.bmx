@@ -65,6 +65,21 @@ Type TSDLWindow
 		Return bmx_SDL3_GetWindowSizeInPixels(windowPtr, Varptr width, Varptr height)
 	End Method
 
+	Rem
+	bbdoc: Returns the area safe for interactive content in SDL window coordinates.
+	about: On mobile this excludes display cutouts and other platform insets. On platforms without restricted areas it normally covers the complete window.
+	End Rem
+	Method GetSafeArea:Int(rect:SSDLRect Var)
+		Return bmx_SDL3_GetWindowSafeArea(windowPtr, rect)
+	End Method
+
+	Method GetSafeArea:Int(x:Int Var, y:Int Var, width:Int Var, height:Int Var)
+		Local rect:SSDLRect
+		Local result:Int = GetSafeArea(rect)
+		x = rect.x; y = rect.y; width = rect.w; height = rect.h
+		Return result
+	End Method
+
 	Method GetPosition:Int(x:Int Var, y:Int Var)
 		Return bmx_SDL3_GetWindowPosition(windowPtr, Varptr x, Varptr y)
 	End Method
@@ -429,6 +444,7 @@ Extern
 	Function bmx_SDL3_GetWindowSize:Int(window:Byte Ptr, width:Int Ptr, height:Int Ptr)
 	Function bmx_SDL3_SetWindowSize:Int(window:Byte Ptr, width:Int, height:Int)
 	Function bmx_SDL3_GetWindowSizeInPixels:Int(window:Byte Ptr, width:Int Ptr, height:Int Ptr)
+	Function bmx_SDL3_GetWindowSafeArea:Int(window:Byte Ptr, rect:SSDLRect Var)
 	Function bmx_SDL3_GetWindowPosition:Int(window:Byte Ptr, x:Int Ptr, y:Int Ptr)
 	Function bmx_SDL3_SetWindowPosition:Int(window:Byte Ptr, x:Int, y:Int)
 	Function bmx_SDL3_GetWindowTitle:String(window:Byte Ptr)
