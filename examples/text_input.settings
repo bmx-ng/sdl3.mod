@@ -1,0 +1,6 @@
+app.package=org.blitzmax.sdl3textinput
+app.version.code=1
+app.version.name=1.0.0
+app.name=SDL3 Text Input
+app.orientation=landscape
+app.fullscreen=true

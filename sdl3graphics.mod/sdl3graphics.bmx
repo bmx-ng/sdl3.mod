@@ -31,6 +31,12 @@ End Rem
 Global SDLAttachGPUClaim:Int(device:Byte Ptr,window:Byte Ptr)
 
 Rem
+bbdoc: Optional conversion from framework drawing coordinates to SDL window coordinates.
+about: Rendering frameworks whose presentation transform is not represented by SDL's renderer can install this hook.
+End Rem
+Global SDLTransformTextInputPoint:Int(window:TSDLWindow,x:Float,y:Float,windowX:Float Var,windowY:Float Var)
+
+Rem
 bbdoc: Reports an attached canvas size in logical coordinates or pixels.
 End Rem
 Global SDLAttachedSize(window:Byte Ptr, width:Int Var, height:Int Var, pixels:Int)
@@ -388,6 +394,85 @@ End Function
 Function SDLGraphics:TGraphics(width:Int, height:Int, depth:Int = 0, hertz:Int = 60, flags:Long = GRAPHICS_BACKBUFFER)
 	SetGraphicsDriver SDLGraphicsDriver()
 	Return Graphics(width, height, depth, hertz, flags)
+End Function
+
+Rem
+bbdoc: Shows the software keyboard, when available, and starts receiving text input for the current SDL graphics window.
+about: Input type and capitalization constants are provided by SDL3.SDL3Video. A value of -1 for capitalization, autocorrect or multiline preserves the platform default.
+End Rem
+Function SDLStartTextInput:Int(inputType:Int = SDL_TEXTINPUT_TYPE_TEXT, capitalization:Int = SDL_CAPITALIZE_DEFAULT, autocorrect:Int = -1, multiline:Int = -1)
+	Local window:TSDLWindow = SDLGraphicsDriver().GetSDLWindow()
+	If Not window Then Return False
+	Return window.StartTextInputWithProperties(inputType, capitalization, autocorrect, multiline)
+End Function
+
+Rem
+bbdoc: Hides the software keyboard, when shown, and stops text input for the current SDL graphics window.
+End Rem
+Function SDLStopTextInput:Int()
+	Local window:TSDLWindow = SDLGraphicsDriver().GetSDLWindow()
+	If Not window Then Return False
+	Return window.StopTextInput()
+End Function
+
+Rem
+bbdoc: Returns whether text input is active for the current SDL graphics window.
+End Rem
+Function SDLTextInputActive:Int()
+	Local window:TSDLWindow = SDLGraphicsDriver().GetSDLWindow()
+	If Not window Then Return False
+	Return window.TextInputActive()
+End Function
+
+Rem
+bbdoc: Returns whether the current platform provides an on-screen keyboard.
+End Rem
+Function SDLHasScreenKeyboardSupport:Int()
+	Local window:TSDLWindow = SDLGraphicsDriver().GetSDLWindow()
+	If Not window Then Return False
+	Return window.HasScreenKeyboardSupport()
+End Function
+
+Rem
+bbdoc: Returns whether the on-screen keyboard is shown for the current SDL graphics window.
+End Rem
+Function SDLScreenKeyboardShown:Int()
+	Local window:TSDLWindow = SDLGraphicsDriver().GetSDLWindow()
+	If Not window Then Return False
+	Return window.ScreenKeyboardShown()
+End Function
+
+Rem
+bbdoc: Positions the IME candidate area for the current SDL graphics window.
+about: The rectangle uses the active framework's drawing coordinates when it supplies a conversion, otherwise SDL renderer coordinates or native window coordinates. Mobile platforms also use it to keep the edited area visible above the software keyboard. The cursor offset is relative to x.
+End Rem
+Function SDLSetTextInputArea:Int(x:Int, y:Int, width:Int, height:Int, cursor:Int = 0)
+	Local window:TSDLWindow = SDLGraphicsDriver().GetSDLWindow()
+	If Not window Then Return False
+	Local area:SSDLRect
+	Local x1:Float, y1:Float, x2:Float, y2:Float, cursorX:Float, cursorY:Float
+	Local converted:Int
+	If SDLTransformTextInputPoint Then
+		converted = SDLTransformTextInputPoint(window, x, y, x1, y1) And ..
+			SDLTransformTextInputPoint(window, x + width, y + height, x2, y2) And ..
+			SDLTransformTextInputPoint(window, x + cursor, y, cursorX, cursorY)
+	End If
+	If Not converted Then
+		Local renderer:TSDLRenderer = SDLGraphicsDriver().GetSDLRenderer()
+		If renderer Then
+			If Not renderer.CoordinatesToWindow(x, y, x1, y1) Then Return False
+			If Not renderer.CoordinatesToWindow(x + width, y + height, x2, y2) Then Return False
+			If Not renderer.CoordinatesToWindow(x + cursor, y, cursorX, cursorY) Then Return False
+			converted = True
+		End If
+	End If
+	If converted Then
+		area = New SSDLRect(Int(x1), Int(y1), Int(x2 - x1), Int(y2 - y1))
+		cursor = Int(cursorX - x1)
+	Else
+		area = New SSDLRect(x, y, width, height)
+	End If
+	Return window.SetTextInputArea(area, cursor)
 End Function
 
 Extern

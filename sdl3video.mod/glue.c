@@ -111,11 +111,28 @@ void bmx_SDL3_WarpMouseInFocus(int x, int y) {
 int bmx_SDL3_StartTextInput(SDL_Window *window) {
 	return SDL_StartTextInput(window) ? 1 : 0;
 }
+int bmx_SDL3_StartTextInputWithProperties(SDL_Window *window, int inputType, int capitalization, int autocorrect, int multiline) {
+	SDL_PropertiesID properties = SDL_CreateProperties();
+	if (!properties) return 0;
+	bool configured = SDL_SetNumberProperty(properties, SDL_PROP_TEXTINPUT_TYPE_NUMBER, inputType);
+	if (configured && capitalization >= 0) configured = SDL_SetNumberProperty(properties, SDL_PROP_TEXTINPUT_CAPITALIZATION_NUMBER, capitalization);
+	if (configured && autocorrect >= 0) configured = SDL_SetBooleanProperty(properties, SDL_PROP_TEXTINPUT_AUTOCORRECT_BOOLEAN, autocorrect != 0);
+	if (configured && multiline >= 0) configured = SDL_SetBooleanProperty(properties, SDL_PROP_TEXTINPUT_MULTILINE_BOOLEAN, multiline != 0);
+	bool started = configured && SDL_StartTextInputWithProperties(window, properties);
+	SDL_DestroyProperties(properties);
+	return started ? 1 : 0;
+}
 int bmx_SDL3_StopTextInput(SDL_Window *window) {
 	return SDL_StopTextInput(window) ? 1 : 0;
 }
 int bmx_SDL3_TextInputActive(SDL_Window *window) {
 	return SDL_TextInputActive(window) ? 1 : 0;
+}
+int bmx_SDL3_HasScreenKeyboardSupport(void) {
+	return SDL_HasScreenKeyboardSupport() ? 1 : 0;
+}
+int bmx_SDL3_ScreenKeyboardShown(SDL_Window *window) {
+	return SDL_ScreenKeyboardShown(window) ? 1 : 0;
 }
 
 int bmx_SDL3_SetTextInputArea(SDL_Window *window, const SDL_Rect *rect, int cursor) {

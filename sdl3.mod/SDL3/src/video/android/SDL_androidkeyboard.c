@@ -449,6 +449,21 @@ void Android_HideScreenKeyboard(SDL_VideoDevice *_this, SDL_Window *window)
     Android_JNI_HideScreenKeyboard();
 }
 
+void Android_SetTextInputProperties(SDL_VideoDevice *_this, SDL_Window *window, SDL_PropertiesID props)
+{
+    if (window->text_input_active) {
+        Android_ShowScreenKeyboard(_this, window, props);
+    }
+}
+
+bool Android_UpdateTextInputArea(SDL_VideoDevice *_this, SDL_Window *window)
+{
+    if (window->text_input_active) {
+        Android_ShowScreenKeyboard(_this, window, window->text_input_props);
+    }
+    return true;
+}
+
 void Android_RestoreScreenKeyboard(SDL_VideoDevice *_this, SDL_Window *window)
 {
     if (_this->screen_keyboard_shown) {

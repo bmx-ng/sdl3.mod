@@ -24,6 +24,28 @@ Const SDL_GL_DOUBLEBUFFER:Int = 5
 Const SDL_GL_DEPTH_SIZE:Int = 6
 Const SDL_GL_STENCIL_SIZE:Int = 7
 
+Rem
+bbdoc: General-purpose text input.
+End Rem
+Const SDL_TEXTINPUT_TYPE_TEXT:Int = 0
+Const SDL_TEXTINPUT_TYPE_TEXT_NAME:Int = 1
+Const SDL_TEXTINPUT_TYPE_TEXT_EMAIL:Int = 2
+Const SDL_TEXTINPUT_TYPE_TEXT_USERNAME:Int = 3
+Const SDL_TEXTINPUT_TYPE_TEXT_PASSWORD_HIDDEN:Int = 4
+Const SDL_TEXTINPUT_TYPE_TEXT_PASSWORD_VISIBLE:Int = 5
+Const SDL_TEXTINPUT_TYPE_NUMBER:Int = 6
+Const SDL_TEXTINPUT_TYPE_NUMBER_PASSWORD_HIDDEN:Int = 7
+Const SDL_TEXTINPUT_TYPE_NUMBER_PASSWORD_VISIBLE:Int = 8
+
+Rem
+bbdoc: Use the platform's default capitalization for the selected text input type.
+End Rem
+Const SDL_CAPITALIZE_DEFAULT:Int = -1
+Const SDL_CAPITALIZE_NONE:Int = 0
+Const SDL_CAPITALIZE_SENTENCES:Int = 1
+Const SDL_CAPITALIZE_WORDS:Int = 2
+Const SDL_CAPITALIZE_LETTERS:Int = 3
+
 Type TSDLWindow
 	Field windowPtr:Byte Ptr
 	Field _contexts:TSDLGLContext
@@ -105,6 +127,14 @@ Type TSDLWindow
 	End Method
 
 	Rem
+	bbdoc: Starts text input with software-keyboard hints.
+	about: A value of -1 for capitalization, autocorrect or multiline preserves SDL's platform default. Input type constants select an appropriate keyboard where the platform supports it.
+	End Rem
+	Method StartTextInputWithProperties:Int(inputType:Int = SDL_TEXTINPUT_TYPE_TEXT, capitalization:Int = SDL_CAPITALIZE_DEFAULT, autocorrect:Int = -1, multiline:Int = -1)
+		Return bmx_SDL3_StartTextInputWithProperties(windowPtr, inputType, capitalization, autocorrect, multiline)
+	End Method
+
+	Rem
 	bbdoc: Stops text input for this window.
 	End Rem
 	Method StopTextInput:Int()
@@ -116,6 +146,20 @@ Type TSDLWindow
 	End Rem
 	Method TextInputActive:Int()
 		Return bmx_SDL3_TextInputActive(windowPtr)
+	End Method
+
+	Rem
+	bbdoc: Returns whether this platform provides an on-screen keyboard.
+	End Rem
+	Method HasScreenKeyboardSupport:Int()
+		Return bmx_SDL3_HasScreenKeyboardSupport()
+	End Method
+
+	Rem
+	bbdoc: Returns whether the on-screen keyboard is currently shown for this window.
+	End Rem
+	Method ScreenKeyboardShown:Int()
+		Return bmx_SDL3_ScreenKeyboardShown(windowPtr)
 	End Method
 
 	Rem
@@ -438,8 +482,11 @@ Extern
 	Function bmx_SDL3_ResetTextInputArea:Int(window:Byte Ptr)
 	Function bmx_SDL3_ClearComposition:Int(window:Byte Ptr)
 	Function bmx_SDL3_StartTextInput:Int(window:Byte Ptr)
+	Function bmx_SDL3_StartTextInputWithProperties:Int(window:Byte Ptr, inputType:Int, capitalization:Int, autocorrect:Int, multiline:Int)
 	Function bmx_SDL3_StopTextInput:Int(window:Byte Ptr)
 	Function bmx_SDL3_TextInputActive:Int(window:Byte Ptr)
+	Function bmx_SDL3_HasScreenKeyboardSupport:Int()
+	Function bmx_SDL3_ScreenKeyboardShown:Int(window:Byte Ptr)
 	Function bmx_SDL3_CreateWindow:Byte Ptr(title:String, width:Int, height:Int, flags:ULong)
 	Function bmx_SDL3_GetWindowSize:Int(window:Byte Ptr, width:Int Ptr, height:Int Ptr)
 	Function bmx_SDL3_SetWindowSize:Int(window:Byte Ptr, width:Int, height:Int)
