@@ -33,6 +33,12 @@ PollSystem()
 Check typed = "caf" + Chr($E9), "Committed UTF-8 text was not translated"
 Check window.StopTextInput() = 1
 Check Not window.TextInputActive()
+Check window.StartTextInputWithProperties(SDL_TEXTINPUT_TYPE_TEXT_EMAIL, SDL_CAPITALIZE_NONE, False, False), SDL_GetError()
+Check window.TextInputActive()
+' These queries are valid on every video backend; their result is platform-dependent.
+window.HasScreenKeyboardSupport()
+window.ScreenKeyboardShown()
+Check window.StopTextInput()
 
 Check probeQueueOpenFile()
 GCCollect()
@@ -88,6 +94,11 @@ Local graphics:TGraphics = SDLGraphics(32, 32)
 Check graphics, SDL_GetError()
 SetGraphics(graphics)
 Check SDLGraphicsDriver().GetSDLWindow().TextInputActive(), "BRL graphics did not activate text input"
+Check SDLStopTextInput()
+Check Not SDLTextInputActive()
+Check SDLStartTextInput(SDL_TEXTINPUT_TYPE_NUMBER, SDL_CAPITALIZE_NONE, False, False), SDL_GetError()
+Check SDLTextInputActive()
+Check SDLSetTextInputArea(2, 2, 24, 16, 8), SDL_GetError()
 graphics.Close()
 Check probeQueueOpenFile() ' Unpolled payload must be released at system shutdown.
 RemoveHook EmitEventHook, Observe
