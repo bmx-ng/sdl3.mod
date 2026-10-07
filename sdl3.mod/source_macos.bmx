@@ -1,6 +1,6 @@
 SuperStrict
 
-' SDL 3.4.16 macOS source selection, checked against upstream CMake compile_commands.json.
+' SDL 3.4.16 Apple source selection, checked against upstream CMake compile_commands.json.
 ' This module still compiles the vendored source directly with bmk.
 
 Import "SDL3/include/SDL3/*.h"
@@ -211,16 +211,21 @@ Import "SDL3/src/joystick/hidapi/SDL_report_descriptor.c"
 Import "SDL3/src/haptic/hidapi/SDL_hidapihaptic.c"
 Import "SDL3/src/haptic/hidapi/SDL_hidapihaptic_lg4ff.c"
 Import "SDL3/src/joystick/apple/SDL_mfijoystick.m"
+?macos And Not ios
 Import "SDL3/src/joystick/darwin/SDL_iokitjoystick.c"
 Import "SDL3/src/haptic/darwin/SDL_syshaptic.c"
 Import "SDL3/src/power/macos/SDL_syspower.c"
 Import "SDL3/src/locale/macos/SDL_syslocale.m"
+?
 Import "SDL3/src/time/unix/SDL_systime.c"
 Import "SDL3/src/timer/unix/SDL_systimer.c"
 Import "SDL3/src/filesystem/cocoa/SDL_sysfilesystem.m"
 Import "SDL3/src/storage/generic/SDL_genericstorage.c"
+?macos And Not ios
 Import "SDL3/src/storage/steam/SDL_steamstorage.c"
+?
 Import "SDL3/src/filesystem/posix/SDL_sysfsops.c"
+?macos And Not ios
 Import "SDL3/src/video/cocoa/SDL_cocoaclipboard.m"
 Import "SDL3/src/video/cocoa/SDL_cocoaevents.m"
 Import "SDL3/src/video/cocoa/SDL_cocoakeyboard.m"
@@ -235,8 +240,11 @@ Import "SDL3/src/video/cocoa/SDL_cocoashape.m"
 Import "SDL3/src/video/cocoa/SDL_cocoavideo.m"
 Import "SDL3/src/video/cocoa/SDL_cocoavulkan.m"
 Import "SDL3/src/video/cocoa/SDL_cocoawindow.m"
+?
 Import "SDL3/src/render/metal/SDL_render_metal.m"
+?macos And Not ios
 Import "SDL3/src/tray/cocoa/SDL_tray.m"
+?
 Import "SDL3/src/thread/pthread/SDL_systhread.c"
 Import "SDL3/src/thread/pthread/SDL_sysmutex.c"
 Import "SDL3/src/thread/pthread/SDL_syscond.c"
@@ -245,7 +253,9 @@ Import "SDL3/src/thread/pthread/SDL_systls.c"
 Import "SDL3/src/thread/pthread/SDL_syssem.c"
 Import "SDL3/src/dialog/SDL_dialog.c"
 Import "SDL3/src/dialog/SDL_dialog_utils.c"
+?macos And Not ios
 Import "SDL3/src/dialog/cocoa/SDL_cocoadialog.m"
+?
 Import "SDL3/src/process/SDL_process.c"
 Import "SDL3/src/process/posix/SDL_posixprocess.c"
 Import "SDL3/src/video/offscreen/SDL_offscreenevents.c"
@@ -257,5 +267,32 @@ Import "SDL3/src/video/offscreen/SDL_offscreenwindow.c"
 Import "SDL3/src/tray/SDL_tray_utils.c"
 Import "SDL3/src/gpu/vulkan/SDL_gpu_vulkan.c"
 Import "SDL3/src/gpu/metal/SDL_gpu_metal.m"
+?macos And Not ios
 Import "SDL3/src/sensor/dummy/SDL_dummysensor.c"
 Import "SDL3/src/main/generic/SDL_sysmain_callbacks.c"
+?
+
+?ios
+Import "SDL3/src/dialog/dummy/SDL_dummydialog.c"
+Import "SDL3/src/haptic/dummy/SDL_syshaptic.c"
+Import "SDL3/src/hidapi/ios/hid.m"
+Import "SDL3/src/main/ios/SDL_sysmain_callbacks.m"
+Import "SDL3/src/misc/ios/SDL_sysurl.m"
+Import "SDL3/src/power/uikit/SDL_syspower.m"
+Import "SDL3/src/sensor/coremotion/SDL_coremotionsensor.m"
+Import "SDL3/src/tray/dummy/SDL_tray.c"
+Import "SDL3/src/video/uikit/SDL_uikitappdelegate.m"
+Import "SDL3/src/video/uikit/SDL_uikitclipboard.m"
+Import "SDL3/src/video/uikit/SDL_uikitevents.m"
+Import "SDL3/src/video/uikit/SDL_uikitmessagebox.m"
+Import "SDL3/src/video/uikit/SDL_uikitmetalview.m"
+Import "SDL3/src/video/uikit/SDL_uikitmodes.m"
+Import "SDL3/src/video/uikit/SDL_uikitopengles.m"
+Import "SDL3/src/video/uikit/SDL_uikitopenglview.m"
+Import "SDL3/src/video/uikit/SDL_uikitpen.m"
+Import "SDL3/src/video/uikit/SDL_uikitvideo.m"
+Import "SDL3/src/video/uikit/SDL_uikitview.m"
+Import "SDL3/src/video/uikit/SDL_uikitviewcontroller.m"
+Import "SDL3/src/video/uikit/SDL_uikitvulkan.m"
+Import "SDL3/src/video/uikit/SDL_uikitwindow.m"
+?

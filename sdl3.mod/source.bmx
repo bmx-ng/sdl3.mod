@@ -503,7 +503,7 @@ Import "SDL3/src/video/windows/SDL_windowsvulkan.c"
 Import "SDL3/src/video/windows/SDL_windowswindow.c"
 ?
 
-?macos
+?macos And Not ios
 Import "SDL3/src/audio/coreaudio/SDL_coreaudio.m"
 Import "SDL3/src/haptic/darwin/SDL_syshaptic.c"
 Import "SDL3/src/hidapi/mac/hid.c"
