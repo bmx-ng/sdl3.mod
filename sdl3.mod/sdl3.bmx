@@ -18,7 +18,7 @@ ModuleInfo "CC_OPTS: `pkg-config --cflags fribidi libthai x11 xext xcursor xi xf
 ModuleInfo "CC_OPTS: `pkg-config --cflags libdecor-0 xkbcommon wayland-client wayland-cursor wayland-egl`"
 ?linux And Not android And sdl3_kmsdrm
 ModuleInfo "CC_OPTS: `pkg-config --cflags libdrm gbm`"
-?macos
+?macos And Not ios
 ModuleInfo "CC_OPTS: -fobjc-arc"
 Import "-framework AppKit"
 Import "-framework AVFoundation"
@@ -33,6 +33,23 @@ Import "-framework IOKit"
 Import "-framework Metal"
 Import "-framework QuartzCore"
 Import "-framework UniformTypeIdentifiers"
+?ios
+ModuleInfo "CC_OPTS: -fobjc-arc -I%PWD%/SDL3/src -idirafter %PWD%/SDL3/src/video/khronos -DGLES_SILENCE_DEPRECATION"
+Import "-framework AVFoundation"
+Import "-framework AudioToolbox"
+Import "-framework CoreAudio"
+Import "-framework CoreBluetooth"
+Import "-framework CoreGraphics"
+Import "-framework CoreHaptics"
+Import "-framework CoreMedia"
+Import "-framework CoreMotion"
+Import "-framework CoreVideo"
+Import "-framework Foundation"
+Import "-framework GameController"
+Import "-framework Metal"
+Import "-framework OpenGLES"
+Import "-framework QuartzCore"
+Import "-framework UIKit"
 ?android
 ModuleInfo "CC_OPTS: -I%PWD%/SDL3/src -idirafter %PWD%/SDL3/src/video/khronos -DGL_GLEXT_PROTOTYPES -fno-strict-aliasing"
 Import "-lOpenSLES"

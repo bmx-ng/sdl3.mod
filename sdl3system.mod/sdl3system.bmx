@@ -209,7 +209,7 @@ End Function
 
 Private
 Function _StandaloneDriver:TSystemDriver()
-?macos
+?macos And Not ios
 	bmx_SDL3_RegisterCallbacks()
 ?
 	Return SDLSystemDriver()

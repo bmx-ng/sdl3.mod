@@ -1,7 +1,7 @@
 SuperStrict
 
 Import "glue.c"
-?macos
+?macos And Not ios
 Import "macos_glue.m"
 ?
 
