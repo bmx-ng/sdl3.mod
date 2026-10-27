@@ -370,3 +370,33 @@ other distributions. No SDL-specific configuration script is required.
 
 The bindings use the zlib/libpng licence. Bundled SDL and third-party sources
 retain their own licence notices; see [SDL's licence](sdl3.mod/SDL3/LICENSE.txt).
+
+## Emscripten
+
+SDL3 builds from the included sources with `bmk`, as on the native targets.
+`source_emscripten.bmx` selects the browser sources and
+`include/emscripten/SDL_build_config.h` provides the SDL 3.4.16 browser
+configuration. Install and activate Emscripten, then build the example:
+
+```sh
+source /PATH/TO/emsdk/emsdk_env.sh
+bmk makeapp -l emscripten -g js -r -t console \
+    -o hello_emscripten_canvas mod/sdl3.mod/examples/hello_emscripten_canvas.bmx
+```
+
+Serve the generated HTML, JavaScript, and WebAssembly files from the same
+directory over HTTP. The first build compiles SDL3; later builds reuse the
+module archive. This example draws one frame. Interactive applications can use
+`RunAppLoop` for their browser event loop.
+
+With `SDL3.SDL3Video` imported, pass `SDL_WINDOW_FILL_DOCUMENT` as a `Graphics`
+flag to let SDL size the canvas to the page and track browser resizes:
+
+```blitzmax
+Graphics 800, 600, 0, 60, SDL_WINDOW_FILL_DOCUMENT
+```
+
+This flag only changes SDL3 graphics on Emscripten. A custom Emscripten HTML
+shell must provide a `<canvas id="canvas">` without CSS width or height; SDL
+manages those dimensions. The [Asteroids example](../ecs.mod/flecs.mod/examples/03_asteroids/)
+has a minimal black shell selected through its `pre.bmk` file.

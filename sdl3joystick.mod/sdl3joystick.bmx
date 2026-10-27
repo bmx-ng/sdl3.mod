@@ -387,7 +387,11 @@ Extern
 	Function SDL_GetNumJoystickHats:Int(joystick:Byte Ptr)
 End Extern
 
+?Not emscripten
 If Not SDL_WasInit(SDL_INIT_JOYSTICK) And Not SDL_InitSubSystem(SDL_INIT_JOYSTICK) Then Throw "SDL3 joystick init failed: " + SDL_GetError()
+?
 _driver = New TSDLJoystickDriver
 GetJoystickDriver(_driver.GetName())
+?Not emscripten
 bmx_SDL3_RegisterJoystickObserver()
+?

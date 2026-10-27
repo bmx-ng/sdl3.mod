@@ -11,15 +11,19 @@ ModuleInfo "CC_OPTS: -I%PWD%/../sdl3.mod/SDL3/include"
 Import SDL3.SDL3Audio
 Import BRL.Audio
 Import "glue.c"
+?Not emscripten
 Import "streaming.bmx"
+?
 
 Rem
 bbdoc: Returns an asynchronous streaming error for a channel, or an empty string.
 about: Streaming read/decoder failures stop playback and are retained here; no exception crosses the audio callback. LoadSound/PlaySound setup failures return Null and describe the error through SDL_GetError.
 End Rem
 Function SDLAudioStreamingError:String(channel:TChannel)
+	?Not emscripten
 	Local value:TSDLChannel = TSDLChannel(channel)
 	If value And value.job Then Return value.job.Error()
+	?
 	Return ""
 End Function
 
@@ -29,11 +33,14 @@ Global active:Int
 Global shutdownRegistered:Int
 
 Function ShutdownAudio()
+	?Not emscripten
 	StopStreamingJobs()
+	?
 	bmx_SDL3_AudioDriverStop()
 	active = False
 End Function
 
+?Not emscripten
 Type TSDLStreamingSound Extends TSound
 	Field url:Object
 	Field origin:Long
@@ -107,6 +114,7 @@ Type TSDLStreamingSound Extends TSound
 		Return target
 	End Method
 End Type
+?
 
 Type TSDLSound Extends TSound
 	Field handle:Byte Ptr
@@ -141,14 +149,18 @@ Type TSDLSound Extends TSound
 End Type
 
 Type TSDLChannel Extends TChannel
+	?Not emscripten
 	Field job:TSDLStreamJob
+	?
 
 	Method CancelStream()
+		?Not emscripten
 		If job Then
 			job.Cancel()
 			job.Wait()
 			job = Null
 		End If
+		?
 	End Method
 	Field handle:Byte Ptr
 	Field serial:Int
@@ -167,9 +179,13 @@ Type TSDLChannel Extends TChannel
 	End Method
 
 	Method Stop() Override
+		?Not emscripten
 		If job Then job.Cancel()
+		?
 		bmx_SDL3_AudioChannelStop(handle)
+		?Not emscripten
 		If job Then job.Wait()
+		?
 	End Method
 
 	Method SetPaused(paused:Int) Override
@@ -225,8 +241,13 @@ Type TSDLAudioDriver Extends TAudioDriver
 
 	Method LoadSound:TSound(url:Object, flags:Int = 0) Override
 		If flags & SOUND_STREAM Then
+			?emscripten
+			' Single-threaded browser builds decode the complete file up front.
+			Return TSound.Load(url, flags & (SOUND_LOOP | SOUND_HARDWARE))
+			?Not emscripten
 			If Not active Then Return Null
 			Return TSDLStreamingSound.Load(url, flags)
+			?
 		End If
 		Return TSound.Load(url, flags)
 	End Method

@@ -231,6 +231,9 @@ Type TSDLGraphicsDriver Extends TGraphicsDriver
 		Local windowFlags:ULong=SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY
 		If flags & GRAPHICS_BORDERLESS Then windowFlags :| SDL_WINDOW_BORDERLESS
 		If useGL Then windowFlags :| SDL_WINDOW_OPENGL
+?emscripten
+		If flags & SDL_WINDOW_FILL_DOCUMENT Then windowFlags :| SDL_WINDOW_FILL_DOCUMENT
+?
 		Local window:TSDLWindow = TSDLWindow.Create(AppTitle, width, height, windowFlags)
 		If Not window Then Return Null
 

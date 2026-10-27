@@ -2,6 +2,12 @@
 #include <brl.mod/blitz.mod/blitz.h>
 
 SDL_Renderer *bmx_SDL3_CreateRenderer(SDL_Window *window, BBString *driver) {
+#ifdef __EMSCRIPTEN__
+    /* Browser rendering should follow requestAnimationFrame unless the app opted out. */
+    if (!SDL_GetHint(SDL_HINT_RENDER_VSYNC)) {
+        SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
+    }
+#endif
     unsigned char *utf8 = bbStringToUTF8String(driver);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, utf8[0] ? (const char *)utf8 : NULL);
     bbMemFree(utf8);

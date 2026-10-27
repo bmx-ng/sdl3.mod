@@ -19,7 +19,7 @@ void sdl3_sdl3system__WheelEvent(BBObject *payload);
 void sdl3_sdl3system__TextDropEvent(BBObject *payload);
 static void clearInputState(void);
 
-int brl_event_EmitEvent(BBObject *event);
+void brl_event_EmitEvent(BBObject *event);
 BBObject *brl_event_CreateEvent(int id, BBObject *source, int data, int mods, int x, int y, BBObject *extra);
 int sdl3_sdl3system_TSDLSystemDriver__eventFilter(BBObject *driver, int eventType);
 
