@@ -4,7 +4,7 @@
 int bmx_SDL3_GraphicsInitialPosition(SDL_Window *window, int x, int y) {
     const char *driver = SDL_GetCurrentVideoDriver();
     if (driver && (SDL_strcmp(driver, "wayland") == 0 || SDL_strcmp(driver, "android") == 0
-            || SDL_strcmp(driver, "uikit") == 0)) return 1;
+            || SDL_strcmp(driver, "uikit") == 0 || SDL_strcmp(driver, "emscripten") == 0)) return 1;
     return SDL_SetWindowPosition(window, x, y) ? 1 : 0;
 }
 

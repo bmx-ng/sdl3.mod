@@ -161,5 +161,7 @@ Extern
 	Function SDL_GetGamepadID:UInt(gamepad:Byte Ptr)
 End Extern
 
+?Not emscripten
 If Not SDL_WasInit(SDL_INIT_GAMEPAD) And Not SDL_InitSubSystem(SDL_INIT_GAMEPAD) Then Throw "SDL3 gamepad init failed: " + SDL_GetError()
 bmx_SDL3_RegisterGamepadObserver()
+?

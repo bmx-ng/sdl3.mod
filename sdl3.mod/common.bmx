@@ -12,6 +12,8 @@ Import "source_windows.bmx"
 Import "source_linux.bmx"
 ?android
 Import "source_android.bmx"
-?Not macos And Not ios And Not win32 And Not linux And Not android
+?emscripten
+Import "source_emscripten.bmx"
+?Not macos And Not ios And Not win32 And Not linux And Not android And Not emscripten
 Import "source.bmx"
 ?

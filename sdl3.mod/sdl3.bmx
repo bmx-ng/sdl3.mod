@@ -8,6 +8,11 @@ ModuleInfo "License: zlib/libpng"
 ' SDL's bool is converted to Int by glue.c at the BlitzMax boundary.
 ModuleInfo "CC_OPTS: -I%PWD%/SDL3/include -I%PWD%/SDL3/include/build_config -DSDL_dynapi_h_ -DSDL_DYNAMIC_API=0"
 
+?emscripten
+ModuleInfo "CC_OPTS: -include %PWD%/include/emscripten/SDL_build_config.h -DSDL_STATIC_LIB -DUSING_GENERATED_CONFIG_H -fno-strict-aliasing"
+ModuleInfo "CC_OPTS: -I%PWD%/SDL3/src -idirafter %PWD%/SDL3/src/video/khronos"
+?
+
 ?linux And Not android
 ModuleInfo "CC_OPTS: -include %PWD%/include/linux/SDL_build_config.h -DSDL_STATIC_LIB -DUSING_GENERATED_CONFIG_H -D_REENTRANT -fno-strict-aliasing"
 ModuleInfo "CC_OPTS: -I%PWD%/SDL3/src -I%PWD%/wayland-generated-protocols -idirafter %PWD%/SDL3/src/video/khronos"

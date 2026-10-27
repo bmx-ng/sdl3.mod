@@ -7,7 +7,7 @@ ModuleInfo "CC_OPTS: -I%PWD%/../sdl3.mod/SDL3/include"
 Import SDL3.SDL3
 Import BRL.System
 Import BRL.Event
-?Not haiku And Not ios
+?Not haiku And Not ios And Not emscripten
 Import Pub.NFD
 ?
 Import BRL.StringBuilder
@@ -101,7 +101,7 @@ Type TSDLSystemDriver Extends TSystemDriver
 	End Method
 
 	Method RequestFile:String(text:String, exts:String, save:Int, file:String) Override
-?Not haiku And Not ios
+?Not haiku And Not ios And Not emscripten
 		Local defaultPath:Byte Ptr
 		Local filterList:Byte Ptr
 		Local outPath:Byte Ptr
@@ -137,7 +137,7 @@ Type TSDLSystemDriver Extends TSystemDriver
 	End Method
 
 	Method RequestDir:String(text:String, path:String) Override
-?Not haiku And Not ios
+?Not haiku And Not ios And Not emscripten
 		Local defaultPath:Byte Ptr
 		Local outPath:Byte Ptr
 		Local result:String
@@ -220,7 +220,7 @@ RegisterFallbackSystemDriver(_StandaloneDriver)
 
 Private
 Extern
-?Not haiku And Not ios
+?Not haiku And Not ios And Not emscripten
 	Function NFD_OpenDialog:Int(filterList:Byte Ptr, defaultPath:Byte Ptr, outPath:Byte Ptr Ptr)
 	Function NFD_SaveDialog:Int(filterList:Byte Ptr, defaultPath:Byte Ptr, outPath:Byte Ptr Ptr)
 	Function NFD_PickFolder:Int(defaultPath:Byte Ptr, outPath:Byte Ptr Ptr)
